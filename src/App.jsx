@@ -1,10 +1,14 @@
 import { useEffect, useState } from 'react';
 import './styles/App.scss';
 
+import MoxyTA from 'moxy-ta';
+
 function App() {
   const [uploadedFile, setUploadedFile] = useState()
-  const [fileJson, setFileJson] = useState()
+  const [fileTxt, setFileTxt] = useState()
   const [isFileUploaded, setIsFileUploaded] = useState(false)
+
+  const [TA, setTA] = useState()
 
   function handleChange(event) {
     console.log('Uploading file...')
@@ -24,7 +28,7 @@ function App() {
 
       let reader = new FileReader()
       reader.addEventListener("load", () => {
-        setFileJson(JSON.parse(reader.result))
+        setFileTxt(reader.result)
       })
 
       reader.readAsText(blob)
@@ -35,15 +39,34 @@ function App() {
     }
   }
 
+  function textAnalysis(text) {
+    console.log(typeof text)
+    if (typeof text === 'string') {
+      console.log('Analysing the text...')
+
+      let ta = new MoxyTA(text)
+      let result = ta.scan() 
+      console.log(result)
+
+      console.log('Text analysed.')
+
+      return result
+    }
+  }
+
   useEffect(() => {
-    console.log(fileJson);
-  }, [fileJson])
+    if (fileTxt) {
+      console.log(fileTxt)
+
+      setTA(textAnalysis(fileTxt))
+    }
+  }, [fileTxt])
 
   return (
     <div className="App">
       <label htmlFor="file">Select a .json file</label>
       <input type="file" name="file" id="fileInput" accept='.json' onChange={handleChange} />
-      <button id="upload" onClick={readJsonFile}>Read the uploaded file</button>
+      <button id="upload" onClick={readJsonFile}>Analyse the uploaded file</button>
     </div>
   );
 }
