@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import './styles/App.scss';
 
 import MoxyTA from 'moxy-ta';
+import { TagCloud } from 'react-tagcloud'
 
 function App() {
   const [uploadedFile, setUploadedFile] = useState()
@@ -9,6 +10,7 @@ function App() {
   const [isFileUploaded, setIsFileUploaded] = useState(false)
 
   const [TA, setTA] = useState()
+  const [TagCloudHTML, setTagCloudHTML] = useState(<p>Please analyse the file to see the wordcloud</p>)
 
   function handleChange(event) {
     console.log('Uploading file...')
@@ -54,6 +56,20 @@ function App() {
     }
   }
 
+  function createTagCloud(textData) {
+    let tags = []
+
+    // Put the 20 most popular words in the correct syntax for the wordcloud and calculate how many times the word appears
+    textData.topWords.forEach(word => {
+      tags.push({ value: word.word, count: word.frequency*textData.totals.totalWords })
+    });
+
+    console.log(tags);
+
+    setTagCloudHTML(<TagCloud key={0} minSize={20} maxSize={100} tags={tags} />)
+  }
+
+  // Analyse the text when it updates
   useEffect(() => {
     if (fileTxt) {
       console.log(fileTxt)
@@ -62,11 +78,22 @@ function App() {
     }
   }, [fileTxt])
 
+  // Create a new Tag Cloud if the Text Analysis updates
+  useEffect(() => {
+    if (TA) {
+      console.log(TA)
+
+      createTagCloud(TA)
+    }
+  }, [TA])
+
   return (
     <div className="App">
       <label htmlFor="file">Select a .json file</label>
       <input type="file" name="file" id="fileInput" accept='.json' onChange={handleChange} />
       <button id="upload" onClick={readJsonFile}>Analyse the uploaded file</button>
+
+      { TagCloudHTML }
     </div>
   );
 }
