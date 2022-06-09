@@ -6,8 +6,10 @@ import { TagCloud } from 'react-tagcloud'
 
 function App() {
   const [uploadedFile, setUploadedFile] = useState()
-  const [fileTxt, setFileTxt] = useState()
   const [isFileUploaded, setIsFileUploaded] = useState(false)
+
+  const [fileJson, setFileJson] = useState()
+  const [jsonValues, setJsonValues] = useState([])
 
   const [TA, setTA] = useState()
   const [TagCloudHTML, setTagCloudHTML] = useState(<p>Please analyse the file to see the wordcloud</p>)
@@ -30,7 +32,7 @@ function App() {
 
       let reader = new FileReader()
       reader.addEventListener("load", () => {
-        setFileTxt(reader.result)
+        setFileJson(JSON.parse(reader.result))
       })
 
       reader.readAsText(blob)
@@ -42,7 +44,6 @@ function App() {
   }
 
   function textAnalysis(text) {
-    console.log(typeof text)
     if (typeof text === 'string') {
       console.log('Analysing the text...')
 
@@ -69,14 +70,57 @@ function App() {
     setTagCloudHTML(<TagCloud key={0} minSize={20} maxSize={100} tags={tags} />)
   }
 
-  // Analyse the text when it updates
-  useEffect(() => {
-    if (fileTxt) {
-      console.log(fileTxt)
+  function extractJsonValues(json, values = [], i = 0) {
+    // console.log('iteration: '+i)
 
-      setTA(textAnalysis(fileTxt))
+    // All the found values
+    // console.log(values)
+
+    // What it will loop through next
+    // console.log(json)
+
+    // Get the next values to loop through
+    let newValues = Object.values(json)
+    // console.log(newValues);
+
+    let finalLoop = true
+
+    newValues.forEach(datapoint => {                        // For each datapoint in the array... 
+      if (typeof datapoint === 'object'){                   // ...check if it is an object.
+        finalLoop = false
+        return extractJsonValues(datapoint, values, i++)    // Loop through the next object
+      } else {                                              // If it isn't an object
+        values.push(datapoint)                              // Save the value in the values array
+      }
+    })
+
+    if (finalLoop) {
+      // console.log('Json values extracted.');
+      // console.log(values);
+
+      // Array to String
+      setJsonValues(values.join(" "))
     }
-  }, [fileTxt])
+  }
+
+  // Set the Json values when the file updates
+  useEffect(() => {
+    if (fileJson) {
+      console.log(fileJson)
+
+      console.log('Extracting json values...');
+      extractJsonValues(fileJson)
+    }
+  }, [fileJson])
+
+  // Analyse the values when they update
+  useEffect(() => {
+    if (jsonValues) {
+      console.log(jsonValues)
+      
+      setTA(textAnalysis(jsonValues))
+    }
+  }, [jsonValues])
 
   // Create a new Tag Cloud if the Text Analysis updates
   useEffect(() => {
