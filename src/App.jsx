@@ -13,7 +13,7 @@ function App() {
   const [jsonValues, setJsonValues] = useState([])
 
   const [TA, setTA] = useState()
-  const [duplicateStrings, setDuplicateStrings] = useState({})
+  const [duplicateURLs, setDuplicateURLs] = useState({})
   const [TagCloudHTML, setTagCloudHTML] = useState(<p>Please analyse the file to see the wordcloud</p>)
   const [topURLs, setTopURLs] = useState(<p>Please analyse the file to see the top URLs</p>)
 
@@ -64,17 +64,22 @@ function App() {
   }
 
   // Sets DuplicateStrings state to an object with the duplicated strings with a frequency count
-  function checkDuplicatesInArray(array) {
+  function findDuplicateURLs(array) {
     const counts = {}
 
     for (const num of array) {
       // If the value is a string and a URL
       if (typeof num === 'string' && num.startsWith('http')) {
-        counts[num] = counts[num] ? counts[num] + 1 : 1
+        
+        // Get the host out of the URL
+        let host = num.split( '/' )[2]
+
+        // Check if the host is a duplicate
+        counts[host] = counts[host] ? counts[host] + 1 : 1
       }
     }
 
-    setDuplicateStrings(counts)
+    setDuplicateURLs(counts)
   }
   
   // Put the top words in the TagCloud
@@ -121,7 +126,7 @@ function App() {
   // Analyse the values when they update
   useEffect(() => {
     if (jsonValues) {
-      checkDuplicatesInArray(jsonValues)
+      findDuplicateURLs(jsonValues)
 
       if (jsonValues.length > 0) {
         setTA(textAnalysis(jsonValues.join(" ")))
@@ -132,9 +137,9 @@ function App() {
   // Fill topURLs when the duplicateStrings is updated 
   useEffect(() => {
     // Check if duplicateStrings is filled 
-    if (!isEmptyObject(duplicateStrings)) {
+    if (!isEmptyObject(duplicateURLs)) {
       // Sort all the URLs based on their value (how many times they where opened)
-      let sortedList = Object.entries(duplicateStrings).sort((a,b) => b[1]-a[1])
+      let sortedList = Object.entries(duplicateURLs).sort((a,b) => b[1]-a[1])
 
       let newTopURLs = []
       // Put the top 20 most visited URLs in newTopURLs
@@ -145,7 +150,7 @@ function App() {
 
       setTopURLs(newTopURLs)
     }
-  }, [duplicateStrings])
+  }, [duplicateURLs])
 
   // Create a new Tag Cloud if the Text Analysis updates
   useEffect(() => {
