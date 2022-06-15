@@ -3,6 +3,7 @@ import './styles/App.scss';
 
 import MoxyTA from 'moxy-ta';
 import { TagCloud } from 'react-tagcloud'
+// import { analyze } from 'text-analysis'
 
 function App() {
   const [uploadedFile, setUploadedFile] = useState()
@@ -12,22 +13,29 @@ function App() {
   const [jsonValues, setJsonValues] = useState([])
 
   const [TA, setTA] = useState()
+  const [duplicateStrings, setDuplicateStrings] = useState({})
   const [TagCloudHTML, setTagCloudHTML] = useState(<p>Please analyse the file to see the wordcloud</p>)
+  const [topURLs, setTopURLs] = useState(<p>Please analyse the file to see the top URLs</p>)
 
   function handleChange(event) {
-    console.log('Uploading file...')
-
     setUploadedFile(event.target.files[0]);
 		setIsFileUploaded(true);
-    console.log(event.target.files[0]);
 
     console.log('File has been uploaded.')
   }
 
+  // Check if an object is empty
+  function isEmptyObject(obj) {
+    if (obj && Object.keys(obj).length === 0 && Object.getPrototypeOf(obj) === Object.prototype) {
+        return true
+    } else {
+        return false
+    }
+}
+
+  // Get the content from the file and put it in the FileJson state
   function readJsonFile() {
     if (isFileUploaded) {
-      console.log('Reading the uploaded file...')
-
       const blob = new Blob([uploadedFile], {type:"application/json"});
 
       let reader = new FileReader()
@@ -43,13 +51,11 @@ function App() {
     }
   }
 
+  // Return the analysis (word/letter frequency) of the given text 
   function textAnalysis(text) {
     if (typeof text === 'string') {
-      console.log('Analysing the text...')
-
       let ta = new MoxyTA(text)
       let result = ta.scan() 
-      console.log(result)
 
       console.log('Text analysed.')
 
@@ -57,6 +63,21 @@ function App() {
     }
   }
 
+  // Sets DuplicateStrings state to an object with the duplicated strings with a frequency count
+  function checkDuplicatesInArray(array) {
+    const counts = {}
+
+    for (const num of array) {
+      // If the value is a string and a URL
+      if (typeof num === 'string' && num.startsWith('http')) {
+        counts[num] = counts[num] ? counts[num] + 1 : 1
+      }
+    }
+
+    setDuplicateStrings(counts)
+  }
+  
+  // Put the top words in the TagCloud
   function createTagCloud(textData) {
     let tags = []
 
@@ -65,23 +86,13 @@ function App() {
       tags.push({ value: word.word, count: word.frequency*textData.totals.totalWords })
     });
 
-    console.log(tags);
-
     setTagCloudHTML(<TagCloud key={0} minSize={20} maxSize={100} tags={tags} />)
   }
 
+  // Extract all the Json values and put an array of them in the JsonValues state
   function extractJsonValues(json, values = [], i = 0) {
-    // console.log('iteration: '+i)
-
-    // All the found values
-    // console.log(values)
-
-    // What it will loop through next
-    // console.log(json)
-
     // Get the next values to loop through
     let newValues = Object.values(json)
-    // console.log(newValues);
 
     let finalLoop = true
 
@@ -95,38 +106,50 @@ function App() {
     })
 
     if (finalLoop) {
-      // console.log('Json values extracted.');
-      // console.log(values);
-
-      // Array to String
-      setJsonValues(values.join(" "))
+      setJsonValues(values)
     }
   }
 
   // Set the Json values when the file updates
   useEffect(() => {
     if (fileJson) {
-      console.log(fileJson)
-
-      console.log('Extracting json values...');
       extractJsonValues(fileJson)
+      console.log('Extracted JSON values...');
     }
   }, [fileJson])
 
   // Analyse the values when they update
   useEffect(() => {
     if (jsonValues) {
-      console.log(jsonValues)
-      
-      setTA(textAnalysis(jsonValues))
+      checkDuplicatesInArray(jsonValues)
+
+      if (jsonValues.length > 0) {
+        setTA(textAnalysis(jsonValues.join(" ")))
+      }
     }
   }, [jsonValues])
+
+  // Fill topURLs when the duplicateStrings is updated 
+  useEffect(() => {
+    // Check if duplicateStrings is filled 
+    if (!isEmptyObject(duplicateStrings)) {
+      // Sort all the URLs based on their value (how many times they where opened)
+      let sortedList = Object.entries(duplicateStrings).sort((a,b) => b[1]-a[1])
+
+      let newTopURLs = []
+      // Put the top 20 most visited URLs in newTopURLs
+      for (let i = 0; i < 20; i++) {
+        let newItem = <p key={i}>{sortedList[i][0]} <br /> {sortedList[i][1]} times</p>
+        newTopURLs.push(newItem)
+      }
+
+      setTopURLs(newTopURLs)
+    }
+  }, [duplicateStrings])
 
   // Create a new Tag Cloud if the Text Analysis updates
   useEffect(() => {
     if (TA) {
-      console.log(TA)
-
       createTagCloud(TA)
     }
   }, [TA])
@@ -138,6 +161,7 @@ function App() {
       <button id="upload" onClick={readJsonFile}>Analyse the uploaded file</button>
 
       { TagCloudHTML }
+      { topURLs }
     </div>
   );
 }
