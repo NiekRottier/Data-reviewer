@@ -5,7 +5,7 @@ import { TagCloud } from 'react-tagcloud'
 
 function App() {
   const [uploadedFile, setUploadedFile] = useState({name: 'No file uploaded'})
-  const [isFileUploaded, setIsFileUploaded] = useState(false)
+  const [isFileUploaded, setIsFileUploaded] = useState(0)
 
   const [fileJson, setFileJson] = useState()
   const [jsonValues, setJsonValues] = useState([])
@@ -16,10 +16,15 @@ function App() {
   const [topURLs, setTopURLs] = useState(<p>Please analyse the file to see the top URLs</p>)
 
   function handleChange(event) {
-    setUploadedFile(event.target.files[0]);
-		setIsFileUploaded(true);
-
-    console.log('File has been uploaded.')
+    console.log(event.target.files[0]);
+    if (event.target.files[0]) {
+      setUploadedFile(event.target.files[0]);
+      setIsFileUploaded(isFileUploaded+1);
+      console.log('File has been uploaded.')
+    } else {
+      setIsFileUploaded(0);
+      console.log('File upload has failed.')
+    }
   }
 
   // Check if an object is empty
@@ -139,7 +144,7 @@ function App() {
 
   // Read the Json file when it is uploaded 
   useEffect(() => {
-    if (isFileUploaded) {
+    if (isFileUploaded && !isEmptyObject(uploadedFile)) {
       readJsonFile()
       console.log(uploadedFile.name);
     }
