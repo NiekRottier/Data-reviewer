@@ -12,7 +12,7 @@ function App() {
   const [fileJson, setFileJson] = useState()
   const [jsonValues, setJsonValues] = useState([])
 
-  const [TA, setTA] = useState()
+  const [titles, setTitles] = useState()
   const [duplicateURLs, setDuplicateURLs] = useState({})
   const [TagCloudHTML, setTagCloudHTML] = useState(<p className='tag-cloud'>Please analyse the file to see the wordcloud</p>)
   const [topURLs, setTopURLs] = useState(<p>Please analyse the file to see the top URLs</p>)
@@ -52,15 +52,26 @@ function App() {
   }
 
   // Return the analysis (word/letter frequency) of the given text 
-  function textAnalysis(text) {
-    if (typeof text === 'string') {
-      let ta = new MoxyTA(text)
-      let result = ta.scan() 
+  function analyseSiteTitles(json) {
+    let array = []
+    console.log(json['Browser History'][0]);
+    // Object.entries(json)
 
-      console.log('Text analysed.')
-
-      return result
+    for (let i = 0; i < json['Browser History'].length; i++) {
+      array.push(json['Browser History'][i].title)
     }
+
+    console.log(array);
+
+    const counts = {}
+
+    for (const num of array) {
+      // Check if the num is a duplicate
+      counts[num] = counts[num] ? counts[num] + 1 : 1
+    }
+
+    console.log(counts);
+    return counts
   }
 
   // Sets DuplicateStrings state to an object with the duplicated strings with a frequency count
@@ -84,14 +95,31 @@ function App() {
   
   // Put the top words in the TagCloud
   function createTagCloud(textData) {
+    console.log(textData);
     let tags = []
 
     // Put the 20 most popular words in the correct syntax for the wordcloud and calculate how many times the word appears
-    textData.topWords.forEach(word => {
-      tags.push({ value: word.word, count: word.frequency*textData.totals.totalWords })
+    Object.entries(textData).forEach(word => {
+      tags.push({ value: word[0], count: word[1] })
     });
 
-    setTagCloudHTML(<TagCloud key={0} minSize={20} maxSize={50} tags={tags} />)
+    // Sort tags[]
+    tags = tags.sort((a,b) => b[1]-a[1])
+    
+    // Get the top 30 used strings
+    tags = tags.slice(0, 30)
+
+    let topTags = []
+    tags.forEach(tag => {
+      if (tag.count > 1) {
+        topTags.push(tag)
+      }
+    })
+
+    console.log(tags);
+    console.log(topTags);
+
+    setTagCloudHTML(<TagCloud key={0} minSize={20} maxSize={50} tags={topTags} />)
   }
 
   // Extract all the Json values and put an array of them in the JsonValues state
@@ -127,6 +155,9 @@ function App() {
   useEffect(() => {
     if (fileJson) {
       extractJsonValues(fileJson)
+
+      setTitles(analyseSiteTitles(fileJson))
+
       console.log('Extracted JSON values...');
     }
   }, [fileJson])
@@ -136,9 +167,11 @@ function App() {
     if (jsonValues) {
       findDuplicateURLs(jsonValues)
 
-      if (jsonValues.length > 0) {
-        setTA(textAnalysis(jsonValues.join(" ")))
-      }
+      // setTA(textAnalysis(jsonValues))
+
+      // if (jsonValues.length > 0) {
+      //   setTA(textAnalysis(jsonValues.join(" ")))
+      // }
     }
   }, [jsonValues])
 
@@ -162,10 +195,10 @@ function App() {
 
   // Create a new Tag Cloud if the Text Analysis updates
   useEffect(() => {
-    if (TA) {
-      createTagCloud(TA)
+    if (titles && !isEmptyObject(titles)) {
+      createTagCloud(titles)
     }
-  }, [TA])
+  }, [titles])
 
   return (
     <div className="App">
