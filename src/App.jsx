@@ -115,6 +115,13 @@ function App() {
     }
   }
 
+  // Read the Json file when it is uploaded 
+  useEffect(() => {
+    if (isFileUploaded) {
+      readJsonFile()
+    }
+  }, [isFileUploaded])
+
   // Set the Json values when the file updates
   useEffect(() => {
     if (fileJson) {
@@ -161,9 +168,9 @@ function App() {
 
   return (
     <div className="App">
-      <label htmlFor="file">Select a .json file</label>
-      <input type="file" name="file" id="fileInput" accept='.json' onChange={handleChange} />
-      <button id="upload" onClick={readJsonFile}>Analyse the uploaded file</button>
+      <h1>The Data Reviewer</h1>
+      <label htmlFor="fileInput">Upload a JSON-file</label>
+      <input type="file" id="fileInput" accept='.json' onChange={handleChange} />
 
       { TagCloudHTML }
       { topURLs }
