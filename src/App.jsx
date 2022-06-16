@@ -1,9 +1,7 @@
 import { useEffect, useState } from 'react';
 import './styles/App.scss';
 
-import MoxyTA from 'moxy-ta';
 import { TagCloud } from 'react-tagcloud'
-// import { analyze } from 'text-analysis'
 
 function App() {
   const [uploadedFile, setUploadedFile] = useState({name: 'No file uploaded'})
@@ -61,8 +59,6 @@ function App() {
       array.push(json['Browser History'][i].title)
     }
 
-    console.log(array);
-
     const counts = {}
 
     for (const num of array) {
@@ -70,7 +66,6 @@ function App() {
       counts[num] = counts[num] ? counts[num] + 1 : 1
     }
 
-    console.log(counts);
     return counts
   }
 
@@ -93,33 +88,27 @@ function App() {
     setDuplicateURLs(counts)
   }
   
-  // Put the top words in the TagCloud
+  // Put the top titles in the TagCloud
   function createTagCloud(textData) {
-    console.log(textData);
-    let tags = []
+    let titles = []
 
-    // Put the 20 most popular words in the correct syntax for the wordcloud and calculate how many times the word appears
+    // Put the titles in an array so they can be sorted
     Object.entries(textData).forEach(word => {
-      tags.push({ value: word[0], count: word[1] })
+      titles.push([word[0], word[1]])
     });
 
-    // Sort tags[]
-    tags = tags.sort((a,b) => b[1]-a[1])
+    // Sort titles on frequency
+    titles = titles.sort((a,b) => b[1]-a[1])
     
-    // Get the top 30 used strings
-    tags = tags.slice(0, 30)
+    // Get the top 25 used titles
+    titles = titles.slice(0, 25)
 
-    let topTags = []
-    tags.forEach(tag => {
-      if (tag.count > 1) {
-        topTags.push(tag)
-      }
+    let tags = []
+    titles.forEach(title => {
+      tags.push({value: title[0], count: title[1]})
     })
 
-    console.log(tags);
-    console.log(topTags);
-
-    setTagCloudHTML(<TagCloud key={0} minSize={20} maxSize={50} tags={topTags} />)
+    setTagCloudHTML(<TagCloud key={0} minSize={20} maxSize={50} tags={tags} />)
   }
 
   // Extract all the Json values and put an array of them in the JsonValues state
@@ -166,12 +155,6 @@ function App() {
   useEffect(() => {
     if (jsonValues) {
       findDuplicateURLs(jsonValues)
-
-      // setTA(textAnalysis(jsonValues))
-
-      // if (jsonValues.length > 0) {
-      //   setTA(textAnalysis(jsonValues.join(" ")))
-      // }
     }
   }, [jsonValues])
 
