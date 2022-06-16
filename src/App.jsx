@@ -52,8 +52,6 @@ function App() {
   // Return the analysis (word/letter frequency) of the given text 
   function analyseSiteTitles(json) {
     let array = []
-    console.log(json['Browser History'][0]);
-    // Object.entries(json)
 
     for (let i = 0; i < json['Browser History'].length; i++) {
       array.push(json['Browser History'][i].title)
@@ -108,7 +106,14 @@ function App() {
       tags.push({value: title[0], count: title[1]})
     })
 
-    setTagCloudHTML(<TagCloud key={0} minSize={20} maxSize={50} tags={tags} />)
+    setTagCloudHTML(<TagCloud 
+      key={0} 
+      minSize={20} 
+      maxSize={50} 
+      tags={tags}
+      onClick={tag => alert(`'${tag.value}' was seen ${tag.count} times!`)} />)
+
+      
   }
 
   // Extract all the Json values and put an array of them in the JsonValues state
