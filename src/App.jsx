@@ -6,7 +6,7 @@ import { TagCloud } from 'react-tagcloud'
 // import { analyze } from 'text-analysis'
 
 function App() {
-  const [uploadedFile, setUploadedFile] = useState()
+  const [uploadedFile, setUploadedFile] = useState({name: 'No file uploaded'})
   const [isFileUploaded, setIsFileUploaded] = useState(false)
 
   const [fileJson, setFileJson] = useState()
@@ -26,12 +26,12 @@ function App() {
 
   // Check if an object is empty
   function isEmptyObject(obj) {
-    if (obj && Object.keys(obj).length === 0 && Object.getPrototypeOf(obj) === Object.prototype) {
-        return true
-    } else {
-        return false
-    }
-}
+      if (obj && Object.keys(obj).length === 0 && Object.getPrototypeOf(obj) === Object.prototype) {
+          return true
+      } else {
+          return false
+      }
+  }
 
   // Get the content from the file and put it in the FileJson state
   function readJsonFile() {
@@ -119,6 +119,7 @@ function App() {
   useEffect(() => {
     if (isFileUploaded) {
       readJsonFile()
+      console.log(uploadedFile.name);
     }
   }, [isFileUploaded])
 
@@ -170,8 +171,11 @@ function App() {
     <div className="App">
       <header>
         <h1>The Data Reviewer</h1>
-        <label htmlFor="fileInput">Upload a JSON-file</label>
-        <input type="file" id="fileInput" accept='.json' onChange={handleChange} />
+        <div id='inputContainer'>
+          <label htmlFor="fileInput">Upload a JSON-file</label>
+          <input type="file" id="fileInput" accept='.json' onChange={handleChange} />
+          <small>Uploaded: {uploadedFile.name}</small>
+        </div>
       </header>
 
       { TagCloudHTML }
