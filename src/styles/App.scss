@@ -6,6 +6,25 @@
   padding: 0;
   font-family: 'Jura', sans-serif;
 }
+html{
+  min-height:100%;/* make sure it is at least as tall as the viewport */
+  position:relative;
+}
+
+#backgroundText{
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  z-index: -1;
+
+  overflow: hidden;
+  word-wrap: break-word;
+
+  color: #f8f8f8;
+  font-size: 24px;
+}
 
 header{
   display: flex;
@@ -73,7 +92,7 @@ h1{
 
     height: fit-content;
     background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(4px);
+    backdrop-filter: blur(1.5px);
     border: 3px solid #8F00FF;
     border-radius: 5px;
 
@@ -86,7 +105,7 @@ h1{
 
     background: rgba(255, 255, 255, 0.1);
     border: 3px solid #14FF00;
-    backdrop-filter: blur(4px);
+    backdrop-filter: blur(1.5px);
     border-radius: 5px;
     
     text-align: center;

@@ -169,6 +169,7 @@ function App() {
 
   return (
     <div className="App">
+      <p id="backgroundText">{jsonValues.join(' ')}</p>
       <header>
         <h1>The Data Reviewer</h1>
         <div id='inputContainer'>
