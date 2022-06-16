@@ -168,9 +168,11 @@ function App() {
 
   return (
     <div className="App">
-      <h1>The Data Reviewer</h1>
-      <label htmlFor="fileInput">Upload a JSON-file</label>
-      <input type="file" id="fileInput" accept='.json' onChange={handleChange} />
+      <header>
+        <h1>The Data Reviewer</h1>
+        <label htmlFor="fileInput">Upload a JSON-file</label>
+        <input type="file" id="fileInput" accept='.json' onChange={handleChange} />
+      </header>
 
       { TagCloudHTML }
       { topURLs }

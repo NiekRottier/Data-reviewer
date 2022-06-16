@@ -7,15 +7,28 @@
   font-family: 'Jura', sans-serif;
 }
 
-// Upload button
+header{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+
+  margin: 30px;
+}
+
+h1{
+  width: fit-content;
+  font-size: 48px;
+  font-weight: 700;
+  border-bottom: 5px solid #25B0FF;
+}
+
+// Hide the ugly file input and use the label as the button
 input[type="file"] {
   display: none;
 }
 
 label{
-  position: absolute;
-  top: 30px;
-  right: 30px;
   padding: 30px;
 
   background-color: #25B0FF;
