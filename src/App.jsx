@@ -14,7 +14,7 @@ function App() {
 
   const [TA, setTA] = useState()
   const [duplicateURLs, setDuplicateURLs] = useState({})
-  const [TagCloudHTML, setTagCloudHTML] = useState(<p>Please analyse the file to see the wordcloud</p>)
+  const [TagCloudHTML, setTagCloudHTML] = useState(<p className='tag-cloud'>Please analyse the file to see the wordcloud</p>)
   const [topURLs, setTopURLs] = useState(<p>Please analyse the file to see the top URLs</p>)
 
   function handleChange(event) {
@@ -91,7 +91,7 @@ function App() {
       tags.push({ value: word.word, count: word.frequency*textData.totals.totalWords })
     });
 
-    setTagCloudHTML(<TagCloud key={0} minSize={20} maxSize={100} tags={tags} />)
+    setTagCloudHTML(<TagCloud key={0} minSize={20} maxSize={50} tags={tags} />)
   }
 
   // Extract all the Json values and put an array of them in the JsonValues state
@@ -152,7 +152,7 @@ function App() {
       let newTopURLs = []
       // Put the top 20 most visited URLs in newTopURLs
       for (let i = 0; i < 20; i++) {
-        let newItem = <p key={i}>{sortedList[i][0]} <br /> {sortedList[i][1]} times</p>
+        let newItem = <p className='topURL' key={i}><b>{sortedList[i][0]}</b> <br /> visited <i>{sortedList[i][1]}</i> times</p>
         newTopURLs.push(newItem)
       }
 
@@ -178,8 +178,13 @@ function App() {
         </div>
       </header>
 
-      { TagCloudHTML }
-      { topURLs }
+      <div id="analysisContainer">
+        { TagCloudHTML }
+
+        <div id="topURLsContainer">
+          { topURLs }
+        </div>
+      </div>
     </div>
   );
 }
