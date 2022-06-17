@@ -178,8 +178,11 @@ function App() {
       let newTopURLs = []
       // Put the top 20 most visited URLs in newTopURLs
       for (let i = 0; i < 20; i++) {
-        let newItem = <p className='topURL' key={i}><b>{sortedList[i][0]}</b> <br /> visited <i>{sortedList[i][1]}</i> times</p>
-        newTopURLs.push(newItem)
+        console.log(sortedList[i]);
+        if (sortedList[i]) {
+          let newItem = <p className='topURL' key={i}><b>{sortedList[i][0]}</b> <br /> visited <i>{sortedList[i][1]}</i> times</p>
+          newTopURLs.push(newItem)
+        }
       }
 
       setTopURLs(newTopURLs)
